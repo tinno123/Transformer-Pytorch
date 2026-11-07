@@ -9,7 +9,7 @@
 | dev BLEU (newstest2013) | 25.8 | **25.42**（intl 分词）        |
 | dev PPL | 4.92 | 5.07                      |
 
-> BLEU 由 sacrebleu 2.6.0 计算，报数时请附 signature：
+> BLEU 由 sacrebleu 2.6.0 计算
 > `nrefs:1|case:mixed|eff:no|tok:intl|smooth:exp|version:2.6.0`
 > 论文使用的是 tensor2tensor 内置 BLEU，其分词方式最接近 `intl`，故以此为准；
 > 若用 WMT 标准的 `13a` 分词，上述两个数字分别为 24.76 / 24.25。
