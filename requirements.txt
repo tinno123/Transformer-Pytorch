@@ -1,0 +1,5 @@
+torch>=2.0
+tokenizers>=0.15
+sacrebleu>=2.3
+numpy
+tqdm

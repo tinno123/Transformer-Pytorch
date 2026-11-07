@@ -1,0 +1,53 @@
+# ============================================================
+#  Transformer (WMT14 en-de) 训练配置
+#  用法: python train.py --config config.yaml
+# ============================================================
+
+# ---------------- 全局 ----------------
+seed: 11                      # 随机种子（同时固定 python / numpy / torch / cudnn）
+device: auto                  # auto / cuda / cuda:1 / cpu；auto = 有 GPU 就用 GPU
+
+# ---------------- 数据 ----------------
+data:
+  train_src: data/wmt14_en_de/train.en      # 训练集源语言（英文）
+  train_target: data/wmt14_en_de/train.de   # 训练集目标语言（德文）
+  valid_src: data/wmt14_en_de/valid.en      # 验证集源语言
+  valid_target: data/wmt14_en_de/valid.de   # 验证集目标语言
+  cache: valid_ids_cache.pkl                # 训练集样本长度缓存，不存在会自动重建
+
+# ---------------- 训练循环 ----------------
+training:
+  target_tokens: 5000000000                # 训练的token数
+  batch_size: 8               # 训练 batch size
+  valid_batch_size: 8         # 验证 batch size；
+  num_workers: 8              # 训练 DataLoader 进程数
+  valid_num_workers: 4        # 验证 DataLoader 进程数
+  prefetch_factor: 4          # 每个 worker 预取批数（仅 num_workers > 0 生效）
+  fp16: true                  # 开启 AMP 混合精度（GradScaler + autocast），省显存
+
+# ---------------- 模型（base 配置）----------------
+model:
+  N: 6                        # Encoder / Decoder 堆叠层数
+  heads: 8                    # 多头注意力头数
+  dims: 512                   # d_model 隐藏维度
+  des_vocab_size: 37000       # 目标端词表大小（须与 BPE 词表 / Loss 保持一致）
+  tie_weights: true           # 输入 embedding 与输出 projection 权重共享
+
+# ---------------- 优化器（论文 §5.3）----------------
+optimizer:
+  type: adam                  # adam / sgd
+  lr: 0.0                     # 占位值，真实 lr 每步由 NoamLR 覆盖
+  betas: [0.9, 0.98]          # Adam β1, β2（论文设置）
+  eps: 1.0e-9                 # Adam eps（论文设置）
+  weight_decay: 0.0           # 论文不做 weight decay，保持 0
+
+# ---------------- 学习率调度 NoamLR（论文 §5.3）----------------
+scheduler:
+  d_model: 512                # 学习率公式里的 d_model，建议与 model.dims 保持一致
+  warmup_steps: 4000          # 前 4000 步线性升温，之后按 step^-0.5 衰减
+  factor: 1.0                 # 学习率整体缩放系数
+
+# ---------------- 断点续训 ----------------
+resume:
+  checkpoint: "checkpoint/20261105_003659/last_model.pth"   # 留空 "" 则从头训练
+  start_tokens: 0             # 起始 token 计数；续训时会被 checkpoint['epoch'] 覆盖
