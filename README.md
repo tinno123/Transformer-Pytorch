@@ -26,7 +26,7 @@ pip install -r requirements.txt
 ```
 
 单卡 RTX 3060 (12 GB) 上：batch=8、max_len=400 时显存峰值约 **5.7 GB**，
-吞吐约 **6 k token/s**；A100 级别单卡约 **24.6 k token/s**。
+吞吐约 **6 k token/s**；
 
 ---
 
